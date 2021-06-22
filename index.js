@@ -15,7 +15,7 @@ try {
   // this is an optional input and will default to "push"
   // if the input event is set to '*' then we will omit the event filter from the API query
   // so that all workflow runs are returned regardless of what event triggered them
-  const event = core.getInput("event")
+  const event = core.getInput("workflow_event")
   if (event !== '*') {
       params.event = event || "push"
   }

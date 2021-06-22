@@ -11,15 +11,23 @@ const github = __webpack_require__(438);
 try {
   const octokit = github.getOctokit(core.getInput("github_token"));
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+  const params = {
+    owner,
+    repo,
+    workflow_id: core.getInput("workflow_id"),
+    status: "success",
+    branch: core.getInput("branch"),
+  }
+  // filter workflow runs by the event that triggered them
+  // this is an optional input and will default to "push"
+  // if the input event is set to '*' then we will omit the event filter from the API query
+  // so that all workflow runs are returned regardless of what event triggered them
+  const event = core.getInput("event")
+  if (event !== '*') {
+      params.event = event || "push"
+  }
   octokit.actions
-    .listWorkflowRuns({
-      owner,
-      repo,
-      workflow_id: core.getInput("workflow_id"),
-      status: "success",
-      branch: core.getInput("branch"),
-      event: "push",
-    })
+    .listWorkflowRuns(params)
     .then((res) => {
       const lastSuccessCommitHash =
         res.data.workflow_runs.length > 0
